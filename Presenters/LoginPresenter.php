@@ -250,7 +250,9 @@ class LoginPresenter
      */
     public function GetMicrosoftUrl(){
         if(Configuration::Instance()->GetSectionKey(ConfigSection::AUTHENTICATION, ConfigKeys::AUTHENTICATION_ALLOW_MICROSOFT) == 'true'){
-            $MicrosoftUrl = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?'
+            $MicrosoftUrl = 'https://login.microsoftonline.com/'
+                            .urlencode(Configuration::Instance()->GetSectionKey(ConfigSection::AUTHENTICATION, ConfigKeys::MICROSOFT_TENANT_ID))
+                            .'/oauth2/v2.0/authorize?'
                             .'client_id=' . urlencode(Configuration::Instance()->GetSectionKey(ConfigSection::AUTHENTICATION, ConfigKeys::MICROSOFT_CLIENT_ID))
                             .'&redirect_uri=' . urlencode(Configuration::Instance()->GetSectionKey(ConfigSection::AUTHENTICATION, ConfigKeys::MICROSOFT_REDIRECT_URI))
                             .'&scope=user.read'
@@ -276,8 +278,13 @@ class LoginPresenter
             $helper = $facebook_Client->getRedirectLoginHelper();
 
             $permissions = ['email', 'public_profile']; // Add other permissions as needed
-
-            $FacebookUrl = $helper->getLoginUrl(        //??should it use getReAuthenticationUrl??
+            
+            //The FacebookRedirectLoginHelper makes use of sessions to store a CSRF value. 
+            //You need to make sure you have sessions enabled before invoking the getLoginUrl() method.
+            if (!session_id()) {
+                session_start();
+            }
+            $FacebookUrl = $helper->getLoginUrl(
                 Configuration::Instance()->GetSectionKey(ConfigSection::AUTHENTICATION, ConfigKeys::FACEBOOK_REDIRECT_URI),
                 $permissions
             );
