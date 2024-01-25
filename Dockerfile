@@ -25,6 +25,14 @@ COPY . /var/www/librebooking/
 COPY entrypoint.sh /
 RUN sed -i "s#DocumentRoot /var/www/html#DocumentRoot /var/www/librebooking#" /etc/apache2/sites-enabled/000-default.conf
 RUN a2enmod rewrite
+RUN a2enmod headers
+RUN apt-get update && apt-get install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg
+
+RUN docker-php-ext-install gd
 RUN docker-php-ext-install mysqli
 
 WORKDIR /var/www/librebooking

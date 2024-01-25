@@ -7,8 +7,8 @@ services:
     restart: always
     ports:
       - 3306:3306
-    #volumes:
-    #  - /var/lib/mysql:/var/lib/mysql
+    volumes:
+      - /var/lib/mysql:/var/lib/mysql
     environment:
       - MARIADB_DATABASE=librebooking
       - MARIADB_USER=librebooking
@@ -36,6 +36,7 @@ services:
       - librebooking
     volumes:  # In production, remove this and the next line
       - .:/var/www/librebooking
+      - ./log:/var/log/librebooking/log
 
 networks:
   librebooking:
